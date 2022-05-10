@@ -4,9 +4,25 @@
 #include <iostream>
 #include<sqlite3.h>
 #include<string>
-
+#include "user_database.h"
+#include<format>
 
 using namespace std;
+
+string tempuid, temppassword;
+
+
+static int callbackLogin(void* data, int argc, char** argv, char** azColName) {
+    //fprintf(stderr, "%s: ", (const char*)data);
+    tempuid = argv[0];
+    /*int i = 0;
+    for (i = 0; i < argc; i++) {
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }*/
+    //cout << tempuid << endl;
+    return 0;
+}
+
 
 static int callback(void* data, int argc, char** argv, char** azColName) {
     int i;
@@ -69,13 +85,22 @@ int createTable(){
 }
 
 void insertToTable() {
+
+    string uid, password;
+    cout << "Enter uid and password:\n";
+    cin >> uid;
+    cin >> password;
+
+
     sqlite3* db;
     char* errorMessage;
     int exit = sqlite3_open("USER_DATABASE.db", &db);
+    
+    string insertUser = "INSERT INTO CREDENTIALS VALUES(3, '" + uid + "', '" + password + "'); ";
 
     string insertSql = "INSERT INTO CREDENTIALS VALUES(2, 'user2', 'user234');";
     string querySql = "SELECT * FROM CREDENTIALS;";
-    exit = sqlite3_exec(db, insertSql.c_str(), NULL, 0, &errorMessage);
+    exit = sqlite3_exec(db, insertUser.c_str(), NULL, 0, &errorMessage);
 
     if (exit != SQLITE_OK) {
         cerr << "Error inserting values to the table" << endl;
@@ -89,11 +114,51 @@ void insertToTable() {
 }
 
 
-int main()
-{   
+void initialise() {
     int i = createDB();
     int j = createTable();
-    insertToTable();
+}
+
+void login(){
+    sqlite3* db;
+    char* errorMessage;
+    int exit = sqlite3_open("USER_DATABASE.db", &db);
+    string localUid, localpassword;
+    cout << "Enter the uid: "; cin >> localUid;
+    cout << "Enter the password: "; cin >> localpassword;
+
+    string loginSql = "SELECT uid FROM CREDENTIALS WHERE password = '" + localpassword + "';";
+    exit = sqlite3_exec(db, loginSql.c_str(), callbackLogin, 0, &errorMessage);
+
+    if (exit != SQLITE_OK) {
+        cerr << "Error" << endl;
+        sqlite3_free(errorMessage);
+    }
+    else {
+        cout << "Value found" << endl;
+        if (localUid == tempuid) {
+            cout << "User found " + tempuid << endl;
+        }
+        if (localUid != tempuid) {
+            cout << "User not found, please try another pasword " + tempuid << endl;
+        }
+    }
+    sqlite3_close(db);
+    
+}
+int main()
+{
+    int choice;
+    cout << "Enter '1' to login and 2 to add user\n";
+    cout << "Enter your choice: "; cin >> choice;
+
+    if (choice == 1) {
+        login();
+    }
+    if (choice == 2) {
+        insertToTable();
+    }
+    
     return 0;
 }
 
