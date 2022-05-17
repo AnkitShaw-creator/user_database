@@ -96,7 +96,7 @@ void insertToTable() {
     char* errorMessage;
     int exit = sqlite3_open("USER_DATABASE.db", &db);
     
-    string insertUser = "INSERT INTO CREDENTIALS VALUES(3, '" + uid + "', '" + password + "'); ";
+    string insertUser = "INSERT INTO CREDENTIALS (UID, Password) VALUES('" + uid + "', '" + password + "'); ";
 
     string insertSql = "INSERT INTO CREDENTIALS VALUES(2, 'user2', 'user234');";
     string querySql = "SELECT * FROM CREDENTIALS;";
@@ -108,7 +108,7 @@ void insertToTable() {
     }
     else {
         cout << "Value added to the table" << endl;
-        sqlite3_exec(db, querySql.c_str(), callback, NULL, NULL);
+        //sqlite3_exec(db, querySql.c_str(), callback, NULL, NULL);
     }
     sqlite3_close(db);
 }
@@ -140,14 +140,15 @@ void login(){
             cout << "User found " + tempuid << endl;
         }
         if (localUid != tempuid) {
-            cout << "User not found, please try another pasword " + tempuid << endl;
+            cout << "User not found, please check the uid and pasword" + tempuid << endl;
         }
     }
     sqlite3_close(db);
     
 }
 int main()
-{
+{   
+    initialise();
     int choice;
     cout << "Enter '1' to login and 2 to add user\n";
     cout << "Enter your choice: "; cin >> choice;
@@ -161,7 +162,3 @@ int main()
     
     return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
