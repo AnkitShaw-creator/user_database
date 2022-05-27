@@ -113,7 +113,6 @@ void insertToTable() {
     sqlite3_close(db);
 }
 
-
 void initialise() {
     int i = createDB();
     int j = createTable();
